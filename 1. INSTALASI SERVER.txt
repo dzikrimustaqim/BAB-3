@@ -1,0 +1,312 @@
+A. Instalasi Server
+
+1. Autentikasi Server
+Service EC2 memiliki fitur bawaan yaitu Key Pairs, dengan menggunakan Key Pairs dapat membantu dalam mengelola siapa yang dapat mengakses instance EC2 dengan memberikan kunci privat hanya kepada pengguna yang berwenang.
+
+1.1 Key pairs
+- Pada halaman Key pairs, pilih tombol Create key pair.
+- Isikan form "Create key pair" sebagai berikut:
+  - Key pair
+    - Name: netflix-kp
+	- Key pair type: RSA
+	- Private key file format: .ppk
+- Create key pair
+
+2. Manajemen Firewall
+Service EC2 memiliki fitur bawaan yaitu Security Group, ini dapat mengatur aturan yang menentukan jenis lalu lintas jaringan yang diizinkan masuk (inbound) dan keluar (outbound) dari instance EC2. Lalu lintas jaringan bisa diizinkan atau ditolak berdasarkan protokol, port, dan alamat IP sumber atau tujuan.
+
+2.1. Security Groups (mainServer)
+- Pada halaman Security Groups, pilih tombol Create security group.
+- Isikan form "Create security group" sebagai berikut:
+  - Basic details
+    - Security group name: mainServer-sg
+	- Description: Allows all port requirements on the mainServer
+	- VPC: default
+  - Inbound rules
+    - Add rule
+      - Type: SSH
+	  - Protocol: TCP
+	  - Port range: 22
+	  - Source: Anywhere-IPv4
+	  - Description: -
+    - Add rule
+      - Type: HTTP
+      - Protocol: TCP
+	  - Port range: 80
+	  - Source: Anywhere-IPv4
+	  - Description: -
+    - Add rule
+      - Type: HTTPS
+	  - Protocol: TCP
+	  - Port range: 443
+	  - Source: Anywhere-IPv4
+	  - Description: -
+    - Add rule
+      - Type: HTTPS
+	  - Protocol: TCP
+	  - Port range: 8080
+	  - Source: Anywhere-IPv4
+	  - Description: jenkins
+    - Add rule
+      - Type: Custom TCP
+	  - Protocol: TCP
+	  - Port range: 8081
+	  - Source: Anywhere-IPv4
+	  - Description: app-port
+    - Add rule
+      - Type: Custom TCP
+	  - Protocol: TCP
+	  - Port range: 9000
+	  - Source: Anywhere-IPv4
+	  - Description: sonarqube
+    - Add rule
+      - Type: Custom TCP
+	  - Protocol: TCP
+	  - Port range: 9100
+	  - Source: Anywhere-IPv4
+	  - Description: nodeExporter
+    - Add rule
+      - Type: Custom TCP
+	  - Protocol: TCP
+	  - Port range: 9090
+	  - Source: Anywhere-IPv4
+	  - Description: prometheus
+  - Outbound rules
+      - Type: All traffic
+	  - Protocol: All
+	  - Port range: All
+	  - Source: Anywhere-IPv4
+	  - Description: -
+  - Create security group
+
+2.2. Security Groups (monitoring)
+- Pada halaman Security Groups, pilih tombol Create security group.
+- Isikan form "Create security group" sebagai berikut:
+  - Basic details
+    - Security group name: monitoring-sg
+	- Description: Allows all port requirements on the monitoring
+	- VPC: default
+  - Inbound rules
+    - Add rule
+      - Type: SSH
+	  - Protocol: TCP
+	  - Port range: 22
+	  - Source: Anywhere-IPv4
+	  - Description: -
+    - Add rule
+      - Type: HTTP
+      - Protocol: TCP
+	  - Port range: 80
+	  - Source: Anywhere-IPv4
+	  - Description: -
+    - Add rule
+      - Type: HTTPS
+	  - Protocol: TCP
+	  - Port range: 443
+	  - Source: Anywhere-IPv4
+	  - Description: -
+    - Add rule
+      - Type: Custom TCP
+	  - Protocol: TCP
+	  - Port range: 8080
+	  - Source: Anywhere-IPv4
+	  - Description: jenkins
+    - Add rule
+      - Type: Custom TCP
+	  - Protocol: TCP
+	  - Port range: 8081
+	  - Source: Anywhere-IPv4
+	  - Description: app-port
+  - Outbound rules
+      - Type: All traffic
+	  - Protocol: All
+	  - Port range: All
+	  - Source: Anywhere-IPv4
+	  - Description: -
+  - Create security group
+
+2.3. Security Groups (kubernetesCluster)
+- Pada halaman Security Groups, pilih tombol Create security group.
+- Isikan form "Create security group" sebagai berikut:
+  - Basic details
+    - Security group name: kubernetesCluster-sg
+	- Description: Allows all port requirements on the kubernetesCluster
+	- VPC: default
+  - Inbound rules
+    - Add rule
+      - Type: SSH
+	  - Protocol: TCP
+	  - Port range: 22
+	  - Source: Anywhere-IPv4
+	  - Description: -
+    - Add rule
+      - Type: HTTP
+      - Protocol: TCP
+	  - Port range: 80
+	  - Source: Anywhere-IPv4
+	  - Description: -
+    - Add rule
+      - Type: HTTPS
+	  - Protocol: TCP
+	  - Port range: 443
+	  - Source: Anywhere-IPv4
+	  - Description: -
+    - Add rule
+      - Type: Custom TCP
+	  - Protocol: TCP
+	  - Port range: 30007
+	  - Source: Anywhere-IPv4
+	  - Description: app-nodePort
+    - Add rule
+      - Type: Custom TCP
+	  - Protocol: TCP
+	  - Port range: 9100
+	  - Source: Anywhere-IPv4
+	  - Description: nodeExporter
+    - Add rule
+      - Type: Custom TCP
+	  - Protocol: TCP
+	  - Port range: 8080
+	  - Source: Anywhere-IPv4
+	  - Description: argocd
+  - Outbound rules
+      - Type: All traffic
+	  - Protocol: All
+	  - Port range: All
+	  - Source: Anywhere-IPv4
+	  - Description: -
+  - Create security group
+
+3. Persiapan Server 1 (mainServer)
+Pada proyek ini, server 1 akan diterapkan sebagai server yang akan digunakan untuk menjalankan prinsip utama pada alur kerja DevSecOps. Server ini akan mengelola pipeline CI/CD, termasuk kompilasi kode, pengujian otomatis, analisis keamanan, dan deployment otomatis ke sebuah layanan repositori berbasis cloud yang memungkinkan pengguna untuk menyimpan, mengelola, dan berbagi image Docker. 
+
+Selain itu, server ini akan dilengkapi dengan alat-alat seperti Docker untuk mengemas aplikasi dan semua dependensinya ke dalam kontainer, Jenkins untuk orkestrasi pipeline, SonarQube untuk analisis kode statis, Trivy untuk pemindaian kerentanan pada container, dan OWASP Dependency Check untuk memastikan bahwa semua dependensi aplikasi bebas dari kerentanan keamanan.
+
+Sebagai tambahan, Node Exporter akan diterapkan pada server ini untuk monitoring dan akan dihubungkan dengan server 2 untuk memantau performa serta kesehatan sistem secara real-time, memastikan bahwa semua metrik kinerja dikumpulkan dan dianalisis secara efisien.
+
+3.1. Instances
+- Pada halaman Instances, pilih tombol Launch Instance.
+- Isikan form "Launch an Instance" sebagai berikut:
+  - Name and tags
+    -Name: mainServer
+  - Application and OS Images (Amazon Machine Image)
+    - Quick Start: Ubuntu
+    - Amazon Machine Image (AMI): Ubuntu Server 24.04 LTS (HVM), SSD Volume Type
+	- Architecture: 64-bit (x86)
+  - Instance type
+    - Instance type: t2.large
+  - Key pair (login)
+    - Key pair name: netflix-kp
+  - Network settings
+    - Firewall (security groups)
+	  - Select existing security group
+	- Common security groups: mainServer-sg
+  - Configure storage
+    - 1x "25" GiB "gp3" Root volume
+  - Launch Instance
+
+3.2. Elastic IPs
+- Pada halaman Elastic IP addresses, pilih tombol Allocate Elastic IP address.
+- Pilih tombol Allocate
+- Ubah Name pada IP yang telah di alokasikan menjadi mainServer-eip
+- Klik dropdown Action, selanjutnya pilih Associate Elastic IP address
+- Isikan form "Associate Elastic IP address" sebagai berikut:
+  - Elastic IP address: <Static-IP>
+    - Resource type: Instance
+	- Instance: mainServer
+  - Associate
+
+4. Persiapan Server 2 (monitoring)
+Pada proyek ini, server 2 akan diterapkan sebagai server monitoring yang menggunakan Prometheus dan Grafana. Prometheus akan dikonfigurasi untuk mengumpulkan metriks dari Node Exporter yang diinstal di server 1 dan 3, serta dari Jenkins yang berjalan di server 1. Dengan Prometheus, metriks tersebut akan dikumpulkan secara periodik dan disimpan untuk analisis lebih lanjut.
+
+Grafana akan diinstal di server ini untuk menyediakan visualisasi data secara real-time, memungkinkan pemantauan yang mendalam dan pembuatan dashboard interaktif yang menampilkan kinerja dan kesehatan sistem. Dengan konfigurasi ini, pengguna akan dapat melihat metriks yang diambil dari berbagai sumber dan memantau status keseluruhan dari alur kerja DevSecOps secara efisien.
+
+4.1. Instances
+- Pada halaman Instances, pilih tombol Launch Instance.
+- Isikan form "Launch an Instance" sebagai berikut:
+  - Name and tags
+    -Name: monitoring
+  - Application and OS Images (Amazon Machine Image)
+    - Quick Start: Ubuntu
+    - Amazon Machine Image (AMI): Ubuntu Server 24.04 LTS (HVM), SSD Volume Type
+	- Architecture: 64-bit (x86)
+  - Instance type
+    - Instance type: t2.medium
+  - Key pair (login)
+    - Key pair name: netflix-kp
+  - Network settings
+    - Firewall (security groups)
+	  - Select existing security group
+	- Common security groups: monitoring-sg
+  - Configure storage
+    - 1x "20" GiB "gp3" Root volume
+  - Launch Instance
+  
+4.2. Elastic IPs
+- Pada halaman Elastic IP addresses, pilih tombol Allocate Elastic IP address.
+- Pilih tombol Allocate
+- Ubah Name pada IP yang telah di alokasikan menjadi monitoring-eip
+- Klik dropdown Action, selanjutnya pilih Associate Elastic IP address
+- Isikan form "Associate Elastic IP address" sebagai berikut:
+  - Elastic IP address: <Static-IP>
+    - Resource type: Instance
+	- Instance: monitoring
+  - Associate
+
+5. Persiapan Server 3 (kubernetesCluster)
+Pada proyek ini, server 3 akan digunakan untuk menjalankan Kubernetes cluster yang dideploy menggunakan ArgoCD. ArgoCD akan mengelola dan mengotomatiskan proses deployment aplikasi di Kubernetes cluster berdasarkan definisi yang ada dalam repositori Git. Image Docker yang diupload dari server 1 ke Docker Hub akan diunduh dan dijalankan di server ini sebagai bagian dari cluster Kubernetes.
+
+Selain itu, Node Exporter akan diinstal di server ini untuk menyerap metriks kinerja dan kesehatan sistem. Metriks ini akan dikumpulkan oleh Prometheus yang berjalan di server 2, memungkinkan pemantauan dan analisis yang menyeluruh dari seluruh lingkungan DevSecOps.
+
+5.1. Instances
+- Pada halaman Instances, pilih tombol Launch Instance.
+- Isikan form "Launch an Instance" sebagai berikut:
+  - Name and tags
+    -Name: kubernetesCluster
+  - Application and OS Images (Amazon Machine Image)
+    - Quick Start: Ubuntu
+    - Amazon Machine Image (AMI): Ubuntu Server 24.04 LTS (HVM), SSD Volume Type
+	- Architecture: 64-bit (x86)
+  - Instance type
+    - Instance type: t2.medium
+  - Key pair (login)
+    - Key pair name: netflix-kp
+  - Network settings
+    - Firewall (security groups)
+	  - Select existing security group
+	- Common security groups: kubernetesCluster-sg
+  - Configure storage
+    - 1x "25" GiB "gp3" Root volume
+  - Launch Instance
+
+5.2. Elastic IPs
+- Pada halaman Elastic IP addresses, pilih tombol Allocate Elastic IP address.
+- Pilih tombol Allocate
+- Ubah Name pada IP yang telah di alokasikan menjadi kubernetesCluster-eip
+- Klik dropdown Action, selanjutnya pilih Associate Elastic IP address
+- Isikan form "Associate Elastic IP address" sebagai berikut:
+  - Elastic IP address: <Static-IP>
+    - Resource type: Instance
+	- Instance: kubernetesCluster
+  - Associate
+
+6. Notifikasi Email
+Untuk memastikan setiap hasil kerja Jenkins setelah menyelesaikan proses pipeline diberitahukan kepada tim atau individu terkait, notifikasi email akan dikonfigurasi. Proses ini melibatkan pengaturan akun Google untuk mendapatkan kata sandi aplikasi yang akan digunakan dalam Jenkins. Berikut adalah langkah-langkah detailnya:
+
+6.1. Google Account
+- Masuk ke Google Account
+  - Buka browser dan masuk ke akun Google.
+- Aktifkan Verifikasi 2 Langkah
+  - Periksa dan aktifkan melalui halaman keamanan di pengaturan akun Google.
+- Buat Sandi Aplikasi
+  - Masuk ke pengaturan akun Google dan cari opsi "Sandi aplikasi" melalui bar pencarian Google Account.
+  - Pilih opsi untuk membuat sandi aplikasi.
+- Isikan Nama aplikasi
+  - Isikan nama aplikasi dengan "Netflix" untuk memudahkan identifikasi.
+  - Klik tombol "Buat" untuk menghasilkan sandi aplikasi.
+- Simpan Sandi Aplikasi
+  - Salin sandi aplikasi yang telah dibuat.
+  - Simpan sandi ini di tempat yang aman untuk digunakan dalam konfigurasi Jenkins.
+  - Klik tombol "Selesai" untuk menyelesaikan proses pembuatan sandi aplikasi.
+
+

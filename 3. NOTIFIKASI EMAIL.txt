@@ -1,0 +1,200 @@
+C. Menerapkan Notifikasi Email (Server 1) iadf vcdg yplc lfkp
+
+1. Mengonfigurasi Notifikasi Email di Jenkins
+Bagian ini menjelaskan langkah-langkah untuk mengonfigurasi notifikasi email di Jenkins menggunakan akun Gmail. Langkah-langkah ini termasuk mengaktifkan verifikasi dua langkah di akun Google, membuat password aplikasi, dan menambahkan kredensial email di Jenkins. Hal ini memastikan bahwa notifikasi pipeline dapat dikirim melalui email, memberikan informasi real-time tentang status build.
+
+  1.1. Menyiapkan Akun Google
+       - Buka Akun Google
+	   - Tab Security Section
+	   - Pastikan untuk mengaktifkan 2-Step Verification
+	   - Cari App Password pada pencarian, lalu pilih
+	   - Masukkan App name: Netflix, lalu klik Create
+	   - Simpan generated app password yang muncul: <app-password>
+
+  1.2. Menambahkan Kredensial Email di Jenkins
+       Dashboard > Manage Jenkins > Credentials > System > Global credentials (unrestricted)
+	   * Add Credentials
+	     - Kind: Username with password
+		 - Scope: Global (Jenkins, nodes, items, all child items, etc)
+		 - Username: dzikrimustaqim@gmail
+		 - Password: <app-password>
+		 - ID: mail
+		 - Description: mail
+	   * Klik tombol `Create`
+
+  1.3. Mengonfigurasi Notifikasi Email di Jenkins
+       Dashboard > Manage Jenkins > System
+	   * Extended E-mail Notification
+	     - SMTP server: smtp.gmail.com
+		 - SMTP Port: 465
+		 * Advanced
+		   - Credentials: dzikrimustaqim@gmail.com/****** (mail)
+		   - Use SSL
+	   * Klik tombol `Apply`
+	   * Klik tombol `Save`
+
+  1.4. Menambahkan Konfigurasi Notifikasi Email di Pipeline Jenkins
+       Dashboard > Netflix > Configuration
+	   * Advanced Project Options
+	     * Pipeline
+		   * Script
+
+pipeline {
+    agent any
+    tools {
+        jdk 'jdk17'
+        nodejs 'node16'
+    }
+    environment {
+        SCANNER_HOME = tool 'sonar-scanner'
+        DOCKER_IMAGE = 'dzikrimustaqim/netflix'
+        DOCKER_CONTAINER = 'netflix'
+        DOCKER_CREDENTIALS = 'docker'
+    }
+    stages {
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/dzikrimustaqim/DevSecOps-Project.git'
+            }
+        }
+        stage("SonarQube Analysis") {
+            steps {
+                withSonarQubeEnv('sonar-server') {
+                    sh ''' 
+                        $SCANNER_HOME/bin/sonar-scanner \
+                        -Dsonar.projectName=Netflix \
+                        -Dsonar.projectKey=Netflix 
+                    '''
+                }
+            }
+        }
+        stage("Quality Gate Check") {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+                }
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                sh "npm install"
+            }
+        }
+        stage('OWASP Dependency Check') {
+            steps {
+                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+        stage('Trivy FS Scan') {
+            steps {
+                sh "trivy fs . > trivyfs.txt"
+            }
+        }
+        stage("Docker Build & Push") {
+            steps {
+                script {
+                    // Bangun image baru
+                    withDockerRegistry(credentialsId: "${DOCKER_CREDENTIALS}", toolName: 'docker') {
+                        sh "docker build --build-arg TMDB_V3_API_KEY=9d092686b522d8733aae42c4dab66e30 -t ${DOCKER_IMAGE} ."
+                        sh "docker push ${DOCKER_IMAGE}"
+                    }
+                }
+            }
+        }
+        stage("Trivy Image Scan") {
+            steps {
+                sh "trivy image ${DOCKER_IMAGE} > trivyimage.txt"
+            }
+        }
+        stage('Deploy Container') {
+            steps {
+                script {
+                    // Hentikan dan hapus container yang menggunakan port 8081 atau nama yang sama jika ada
+                    sh ''' 
+                        existing_port_container=$(docker ps --filter "publish=8081" --format "{{.ID}}")
+                        if [ -n "$existing_port_container" ]; then
+                            docker stop $existing_port_container
+                            docker rm $existing_port_container
+                        fi
+
+                        existing_name_container=$(docker ps -a --filter "name=${DOCKER_CONTAINER}" --format "{{.ID}}")
+                        if [ -n "$existing_name_container" ]; then
+                            docker rm -f $existing_name_container
+                        fi
+                    '''
+                    // Jalankan container Netflix baru
+                    sh "docker run -d --name ${DOCKER_CONTAINER} -p 8081:80 ${DOCKER_IMAGE}"
+                }
+            }
+        }
+    }
+    post {
+        always {
+            script {
+                def jobName = env.JOB_NAME
+                def buildNumber = env.BUILD_NUMBER
+                def pipelineStatus = currentBuild.result ?: 'UNKNOWN'
+                def bannerColor = pipelineStatus.toUpperCase() == 'SUCCESS' ? 'green' : 'red'
+                def body = """
+                    <html>
+                        <body>
+                            <div style="border: 4px solid ${bannerColor}; padding: 10px;">
+                                <h2>${jobName} - Build ${buildNumber}</h2>
+                                <div style="background-color: ${bannerColor}; padding: 10px;">
+                                    <h3 style="color: white;">Pipeline Status: ${pipelineStatus.toUpperCase()}</h3>
+                                </div>
+                                <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
+                            </div>
+                        </body>
+                    </html>
+                """
+                emailext(
+                    subject: "${jobName} - Build ${buildNumber} - ${pipelineStatus.toUpperCase()}",
+                    body: body,
+                    to: 'dzikrimustaqim@gmail.com',
+                    from: 'dzikrimustaqim@gmail.com',
+                    replyTo: 'dzikrimustaqim@gmail.com',
+                    mimeType: 'text/html',
+                    attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
+                )
+            }
+        }
+    }
+}
+
+	   * Klik tombol `Apply`
+	   * Klik tombol `Save`
+
+2. Menjalankan Pipeline dan Memverifikasi Hasil
+Bagian ini mencakup langkah-langkah untuk menjalankan pipeline Jenkins yang telah dikonfigurasi dan memverifikasi hasilnya. Pipeline ini mencakup berbagai tahap, mulai dari checkout kode hingga deploy container dan pengiriman notifikasi email. Langkah-langkah ini memastikan bahwa seluruh pipeline berfungsi sesuai yang diharapkan dan bahwa semua tahapan build serta analisis keamanan dijalankan dengan baik.
+
+  2.1. Menjalankan Pipeline
+       * Masuk ke dashboard Jenkins.
+	   * Pilih proyek pipeline yang telah dikonfigurasi (misalnya, "Netflix").
+	   * Klik tombol "Build Now" untuk menjalankan pipeline.
+	   * Monitor proses build di halaman proyek Jenkins untuk memastikan tidak ada kesalahan yang muncul selama eksekusi pipeline.
+	   
+  2.2. Memverifikasi Hasil Build
+       * Setelah pipeline selesai, periksa hasil build di halaman proyek Jenkins.
+	   * Tinjau hasil dari setiap tahap di pipeline untuk memastikan bahwa semua langkah.
+	   * Periksa tab SonarQube untuk memeriksa quality code.
+	   * Periksa tab DockerHub untuk memverifikasi image yang sudah di push.
+	   * Periksa hasil build dan log yang ditampilkan di konsol Jenkins untuk memastikan tidak ada error atau warning yang signifikan.
+	   * Verifikasi bahwa container Netflix baru telah berhasil dideploy dan berjalan di port yang sesuai (misalnya, port 8081).
+	   
+  2.3. Memeriksa Notifikasi Email
+       * Cek email untuk memastikan bahwa notifikasi email dari Jenkins dikirim dengan benar.
+	   * Verifikasi bahwa email berisi informasi yang sesuai tentang status pipeline, hasil build, dan link ke output konsol build.
+	   * Pastikan lampiran yang ditambahkan dalam email (seperti trivyfs.txt dan trivyimage.txt) ada dan dapat diakses.
+	   
+  2.4. Menindaklanjuti Hasil dan Memperbaiki Masalah
+       * Jika ada masalah atau error yang ditemukan selama verifikasi, lakukan pemeriksaan lebih lanjut untuk menentukan penyebab masalah tersebut.
+	   * Perbaiki masalah yang ditemukan dan jalankan kembali pipeline untuk memastikan bahwa semua masalah telah diatasi.
+	   * Dokumentasikan hasil dan perubahan yang dilakukan untuk referensi di masa depan dan untuk memastikan bahwa pipeline tetap berfungsi dengan baik.
+	   
