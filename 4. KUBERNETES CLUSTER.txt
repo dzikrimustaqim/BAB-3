@@ -1,0 +1,127 @@
+D. Menerapkan Kubernetes Cluster (Server 2)
+Pada bagian ini akan dijelaskan langkah-langkah konfigurasi server yang digunakan sebagai Kubernetes cluster menggunakan Minikube. Aplikasi Netflix akan di-deploy menggunakan Argo CD dan Node Exporter akan diinstal menggunakan Helm untuk mengumpulkan metrik yang akan diserap oleh Prometheus yang berada di server monitoring (Server 3).
+
+1. Pembaruan dan Instalasi Awal
+  1.1. Memperbarui daftar paket dan meng-upgrade sistem
+       sudo apt update
+       sudo apt upgrade -y
+	   
+  1.2. Menginstal beberapa paket yang diperlukan
+       sudo apt install curl wget apt-transport-https -y
+
+2. Instalasi Docker
+  2.1. Menginstal Docker
+       sudo apt install docker.io
+	   
+  2.2. Menambahkan pengguna ke grup Docker dan mengatur izin
+       sudo usermod -aG docker $USER
+       sudo chmod 666 /var/run/docker.sock
+  
+3. Verifikasi Dukungan Virtualisasi
+  3.1. Verifikasi Dukungan Virtualisasi
+       egrep -q 'vmx|svm' /proc/cpuinfo && echo yes || echo no
+  
+4. Instalasi KVM
+  4.1. Menginstal KVM dan alat terkait
+       sudo apt install qemu-kvm libvirt-clients libvirt-daemon-system bridge-utils virtinst libvirt-daemon
+	   
+  4.2. Menambahkan pengguna ke grup libvirt dan libvirt-qemu
+       sudo adduser $USER libvirt
+       sudo adduser $USER libvirt-qemu
+	   
+  4.3. Mengaktifkan grup baru
+       newgrp libvirt
+       newgrp libvirt-qemu
+  
+5. Instalasi dan Konfigurasi Minikube
+  5.1. Mengunduh dan menginstal Minikube
+       curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+       sudo install minikube-linux-amd64 /usr/local/bin/minikube
+       minikube version
+	   
+  5.2. Mengunduh dan menginstal Kubectl
+       curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+       chmod +x kubectl
+       sudo mv kubectl /usr/local/bin/
+       kubectl version --client --output=yaml
+
+  5.3. Memulai Minikube dengan driver Docker
+       minikube start --vm-driver docker
+       minikube status
+       kubectl cluster-info
+       kubectl get nodes
+  
+6. Instalasi dan Konfigurasi Helm
+  6.1. Menginstal Helm
+       curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+       helm version
+	   
+  6.2. Menambahkan repo Helm untuk Prometheus
+       helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+  
+7. Instalasi Prometheus Node Exporter
+  7.1. Membuat namespace untuk Prometheus Node Exporter
+       kubectl create namespace prometheus-node-exporter
+	   
+  7.2. Menginstal Prometheus Node Exporter menggunakan Helm
+       helm install prometheus-node-exporter prometheus-community/prometheus-node-exporter --namespace prometheus-node-exporter
+	   
+  7.3. Melakukan port-forward untuk Prometheus Node Exporter
+       kubectl port-forward svc/prometheus-node-exporter -n prometheus-node-exporter --address 0.0.0.0 9100:9100
+  
+8. Instalasi dan Konfigurasi Argo CD
+  8.1. Membuat namespace untuk Argo CD
+       kubectl create ns argocd
+	   
+  8.2. Menginstal Argo CD
+       kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.5.8/manifests/install.yaml
+	   
+  8.3. Memverifikasi bahwa semua komponen Argo CD sudah berjalan
+       kubectl get all -n argocd
+	   
+  8.4. Mendapatkan password default untuk Argo CD
+       kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+	   
+  8.5. Melakukan port-forward untuk Argo CD
+       kubectl port-forward svc/argocd-server -n argocd --address 0.0.0.0 8080:443
+  
+9. Deployment Aplikasi Netflix di Argo CD
+  9.1. Login ke Argo CD
+       * Username: admin
+	   * Password: <password>
+	   
+  9.2. Menambahkan Repository ke Argo CD
+       * Klik pada menu Settings.
+	   * Pilih Repositories.
+	   * Klik tombol CONNECT REPO.
+	   * Pilih metode koneksi VIA HTTPS.
+	   * Isi informasi koneksi repository:
+	     - Type: git
+		 - Project: default
+		 - Repository URL: https://github.com/dzikrimustaqim/DevSecOps-Project.git
+	   * Klik tombol CONNECT.
+	   
+  9.3. Membuat Aplikasi Baru di Argo CD
+       * Klik tombol NEW APP.
+	   * Pada bagian GENERAL, isi informasi:
+	     - Application Name: netflix
+		 - Project Name: default
+		 - Sync Policy: Automatic
+	   * Pada bagian SOURCE, isi informasi:
+	     - Repository URL: https://github.com/dzikrimustaqim/DevSecOps-Project.git
+		 - Revision: HEAD
+		 - Path: Kubernetes
+	   * Pada bagian DESTINATION, isi informasi:
+	     - Cluster URL: https://kubernetes.default.svc
+		 - Namespace: default
+	   * Klik tombol CREATE.
+	   
+  9.4. Menyinkronkan Aplikasi Netflix
+       * Masuk ke aplikasi netflix di Argo CD.
+	   * Klik tombol SYNC.
+	   * Klik tombol SYNCHRONIZE.
+	   * Verifikasi bahwa sinkronisasi berhasil dengan melihat LAST SYNC RESULT: Sync OK.
+	   
+  9.5. Port-Forward untuk Aplikasi Netflix
+       Untuk mengakses aplikasi Netflix, lakukan port-forward:
+	   kubectl port-forward svc/netflix-app -n default --address 0.0.0.0 30007:80

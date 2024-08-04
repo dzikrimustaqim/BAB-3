@@ -1,0 +1,406 @@
+B. Menerapkan mainServer (Server 1)
+
+1. Persiapan Awal
+Bagian ini mencakup langkah-langkah awal untuk memperbarui dan meng-upgrade sistem, mengkloning repositori proyek dari GitHub, dan menginstal Docker. Langkah-langkah ini memastikan bahwa server memiliki semua prasyarat yang diperlukan untuk menjalankan aplikasi dan alat-alat yang akan digunakan dalam pipeline DevSecOps.
+
+  1.1. Memperbarui dan Meng-upgrade Sistem
+       sudo apt update
+       sudo apt upgrade -y
+	   
+  1.2. Mengkloning Repositori Proyek dari GitHub
+       git clone https://github.com/dzikrimustaqim/DevSecOps-Project.git
+       cd DevSecOps-Project
+	   
+  1.3. Menginstal Docker
+       sudo apt-get update
+       sudo apt-get install docker.io -y
+       sudo usermod -aG docker $USER
+       newgrp docker
+       sudo chmod 777 /var/run/docker.sock
+
+2. Membangun dan Menjalankan Container Netflix
+Bagian ini menjelaskan proses membangun gambar Docker untuk aplikasi Netflix dan menjalankannya dalam container. Langkah-langkah ini termasuk membangun gambar dengan menggunakan Dockerfile yang disediakan dan menjalankan container di port tertentu, sehingga aplikasi dapat diakses melalui browser.
+
+  2.1. Membangun Gambar Docker
+       docker build --build-arg TMDB_V3_API_KEY=9d092686b522d8733aae42c4dab66e30 -t netflix:clone .
+	   
+  2.2. Menjalankan Container Netflix
+       docker run -d -p 8081:80 --name netflix netflix:clone
+
+3. Menjalankan dan Mengonfigurasi SonarQube
+Bagian ini mencakup langkah-langkah untuk menjalankan container SonarQube dan melakukan konfigurasi awal. SonarQube digunakan untuk analisis kualitas kode dan membantu dalam mendeteksi masalah dan kerentanan dalam kode sumber aplikasi.
+
+  3.1. Menjalankan Container SonarQube
+       docker run -d --name sonarqube -p 9000:9000 sonarqube:lts-community
+	   
+  3.2. Konfigurasi Awal SonarQube
+       - Login dengan kredensial `admin/admin`.
+	   - Setel Kata Sandi Baru: `pass`.
+
+4. Instalasi Trivy
+Bagian ini menjelaskan proses instalasi Trivy, alat analisis keamanan yang digunakan untuk memindai kerentanan dalam filesystem dan gambar Docker. Langkah-langkah ini mencakup pengunduhan kunci repositori, menambahkan repositori Trivy ke sistem, dan menginstal alat tersebut.
+
+  4.1. Menginstal Prasyarat
+       sudo apt-get install wget apt-transport-https gnupg lsb-release
+	   
+  4.2. Mengunduh dan Menambahkan Kunci Repositori Trivy
+       wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+	   
+  4.3. Menambahkan Repositori Trivy ke Sistem
+       echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+	   
+  4.4. Menginstal Trivy
+       sudo apt-get update
+       sudo apt-get install trivy
+
+5. Instalasi Jenkins
+Bagian ini mencakup langkah-langkah untuk menginstal Jenkins, alat otomatisasi yang digunakan untuk membangun dan mengelola pipeline CI/CD. Langkah-langkah ini termasuk instalasi Jenkins, memulai layanan Jenkins, dan mengambil password awal untuk konfigurasi awal.
+
+  5.1. Menginstal Prasyarat Jenkins
+       sudo apt update
+	   sudo apt install fontconfig openjdk-17-jre
+	   
+  5.2. Mengunduh dan Menambahkan Kunci Repositori Jenkins
+       sudo wget -O /usr/share/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+	   
+  5.3. Menambahkan Repositori Jenkins ke Sistem
+       echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+	   
+  5.4. Menginstal Jenkins
+       sudo apt-get update
+	   sudo apt-get install jenkins
+	   
+  5.5. Memulai dan Mengaktifkan Jenkins
+       sudo systemctl start jenkins
+	   sudo systemctl enable jenkins
+	   
+  5.6. Mengambil Password Awal Jenkins
+       sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+	   
+  5.7. Mengonfigurasi Awal Jenkins
+       - Buka tab browser dengan alamat <IP-Publik>:8080
+	   - Sign in to Jenkins
+	     - Username: admin
+	     - Password: <password>
+       - Install suggested plugins
+       - Skip and continue as Admin
+       - Instance Configuration > default
+       - Save and Finish
+       - Start using Jenkins
+
+6. Mengonfigurasi Jenkins untuk DevSecOps
+Bagian ini menjelaskan konfigurasi lebih lanjut di Jenkins, termasuk instalasi plugin yang diperlukan dan penambahan alat seperti JDK, NodeJS, dan SonarQube Scanner. Langkah-langkah ini memastikan bahwa Jenkins memiliki semua alat yang diperlukan untuk menjalankan pipeline DevSecOps.
+
+  6.1. Menginstal Plugin yang Diperlukan
+       Dashboard > Manage Jenkins > Plugins > Available plugins
+	   * Available plugins
+         - NodeJS
+	     - Eclipse Temurin installer
+	     - SonarQube Scanner
+	   * Klik tombol `Install`
+
+  6.2. Menambahkan Alat dan Konfigurasi Plugin di Jenkins
+       Dashboard > Manage Jenkins > Tools
+       * Add JDK:
+         - Name: jdk17
+         - Install automatically
+         - Install from adoptium.net
+         - Version: jdk-17.0.8.1+1
+	   * Add NodeJS:
+	     - Name: node16
+         - Version: NodeJS 16.2.0
+
+  6.3. Mengonfigurasi SonarQube di Jenkins
+	   - Tab SonarQube
+	     Administrations > Security > Users
+	     * Update Tokens
+	       - Name: jenkins
+		   - Expires in: 30 days
+		   - Generate
+		   - Copy tokens <password>
+
+	   - Tab Jenkins
+	     Dashboard > Manage Jenkins > Credentials > System > Global credentials (unrestricted)
+	     * Add Credentials
+	       - Kind: Secret Text
+		   - Scope: Global
+		   - Secret: <password>
+		   - ID: sonar-token
+		   - Description: sonar-token
+	   
+	     Dashboard > Manage Jenkins > System
+	     * Add SonarQube:
+	       - Name: sonar-server
+		   - Server URL: <IP-Public>:9000/
+		   - Server authentication token: sonar-token
+	   
+	     * Klik tombol `Apply`
+		 * Klik tombol `Save`
+
+  6.4. Menambahkan SonarQube Scanner di Jenkins
+       Dashboard > Manage Jenkins > Tools
+	   * Add SonarQube Scanner
+	     - Name: sonar-scanner
+		 
+	     * Klik tombol `Apply`
+		 * Klik tombol `Save`
+
+7. Membuat Pipeline untuk Netflix di Jenkins
+Bagian ini mencakup pembuatan dan konfigurasi pipeline di Jenkins untuk proyek Netflix. Pipeline ini mengotomatisasi berbagai tahap, termasuk checkout kode, analisis SonarQube, pemasangan dependensi, dan pemeriksaan kualitas kode, sehingga memudahkan dalam pengelolaan dan pengujian aplikasi secara kontinu.
+
+  7.1. Membuat Item Baru di Jenkins
+       Dashboard > New Item
+	     - Enter an item name: Netflix
+		 - Pipeline
+	   *  Klik tombol `OK`
+	   
+  7.2. Konfigurasi Pipeline
+       Dashboard > Netflix > Configuration
+	   * Advanced Project Options
+	     * Pipeline
+		   * Script
+
+pipeline {
+    agent any
+    tools {
+        jdk 'jdk17'
+        nodejs 'node16'
+    }
+    environment {
+        SCANNER_HOME = tool 'sonar-scanner'
+    }
+    stages {
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/dzikrimustaqim/DevSecOps-Project.git'
+            }
+        }
+        stage("SonarQube Analysis") {
+            steps {
+                withSonarQubeEnv('sonar-server') {
+                    sh ''' 
+                        $SCANNER_HOME/bin/sonar-scanner \
+                        -Dsonar.projectName=Netflix \
+                        -Dsonar.projectKey=Netflix 
+                    '''
+                }
+            }
+        }
+        stage("Quality Gate Check") {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+                }
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                sh "npm install"
+            }
+        }
+    }
+}
+
+	   * Klik tombol `Apply`
+	   * Klik tombol `Save`
+	   * Klik tombol Build Now
+
+8. Menginstal dan Mengonfigurasi Plugin Tambahan di Jenkins
+Bagian ini mencakup instalasi plugin tambahan di Jenkins untuk meningkatkan fungsionalitas pipeline, seperti OWASP Dependency-Check dan plugin Docker. Langkah-langkah ini juga termasuk penambahan kredensial Docker Hub di Jenkins untuk memungkinkan pembangunan dan penerapan gambar Docker secara otomatis.
+
+  8.1. Menginstal Plugin Tambahan
+       Dashboard > Manage Jenkins > Plugins
+	   * Available plugins
+         - OWASP Dependency-Check
+		 - Docker
+		 - Docker Commons
+		 - Docker Pipeline
+		 - Docker API
+		 - docker-build-steps
+	   * Klik tombol `Install`
+	   
+  8.2. Menambahkan Kredensial Docker Hub di Jenkins
+       Dashboard > Manage Jenkins > Credentials > System > Global credentials (unrestricted)
+	   * Add Credentials
+	     - Kind: Username with password
+		 - Scope: Global
+		 - Username: dzikrimustaqim
+		 - Password: <Password-DockerHub>
+		 - ID: docker
+		 - Description: docker
+	   * Klik tombol `Create`
+
+  8.3. Menambahkan Alat Tambahan di Jenkins
+       Dashboard > Manage Jenkins > Tools
+	   * Add Dependency-Check:
+	     - Name: DP-Check
+		 - Install automatically
+		 - Install from github.com
+	   * Add Docker:
+	     - Name: docker
+		 - Install automatically
+		 - Download from docker.com
+	   * Klik tombol `Apply`
+	   * Klik tombol `Save`
+
+9. Mengonfigurasi Pipeline untuk Netflix dengan Integrasi Keamanan
+Bagian ini menjelaskan konfigurasi pipeline Jenkins yang lebih komprehensif dengan menambahkan langkah-langkah keamanan seperti OWASP Dependency-Check dan Trivy untuk analisis keamanan. Pipeline ini juga mencakup langkah untuk membangun dan mendorong gambar Docker ke Docker Hub, serta menjalankan container aplikasi secara otomatis.
+
+  9.1. Menambahkan Jenkins ke Grup Docker
+       sudo usermod -aG docker jenkins
+	   sudo systemctl restart jenkins
+
+  9.2. Memperbarui Konfigurasi Pipeline di Jenkins
+       Dashboard > Netflix > Configuration
+	   * Advanced Project Options
+	     * Pipeline
+		   * Script
+
+pipeline {
+    agent any
+    tools {
+        jdk 'jdk17'
+        nodejs 'node16'
+    }
+    environment {
+        SCANNER_HOME = tool 'sonar-scanner'
+        DOCKER_IMAGE = 'dzikrimustaqim/netflix'
+        DOCKER_CONTAINER = 'netflix'
+        DOCKER_CREDENTIALS = 'docker'
+    }
+    stages {
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/dzikrimustaqim/DevSecOps-Project.git'
+            }
+        }
+        stage("SonarQube Analysis") {
+            steps {
+                withSonarQubeEnv('sonar-server') {
+                    sh ''' 
+                        $SCANNER_HOME/bin/sonar-scanner \
+                        -Dsonar.projectName=Netflix \
+                        -Dsonar.projectKey=Netflix 
+                    '''
+                }
+            }
+        }
+        stage("Quality Gate Check") {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+                }
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                sh "npm install"
+            }
+        }
+        stage('OWASP Dependency Check') {
+            steps {
+                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+        stage('Trivy FS Scan') {
+            steps {
+                sh "trivy fs . > trivyfs.txt"
+            }
+        }
+        stage("Docker Build & Push") {
+            steps {
+                script {
+                    // Bangun image baru
+                    withDockerRegistry(credentialsId: "${DOCKER_CREDENTIALS}", toolName: 'docker') {
+                        sh "docker build --build-arg TMDB_V3_API_KEY=9d092686b522d8733aae42c4dab66e30 -t ${DOCKER_IMAGE} ."
+                        sh "docker push ${DOCKER_IMAGE}"
+                    }
+                }
+            }
+        }
+        stage("Trivy Image Scan") {
+            steps {
+                sh "trivy image ${DOCKER_IMAGE} > trivyimage.txt"
+            }
+        }
+        stage('Deploy Container') {
+            steps {
+                script {
+                    // Hentikan dan hapus container yang menggunakan port 8081 atau nama yang sama jika ada
+                    sh ''' 
+                        existing_port_container=$(docker ps --filter "publish=8081" --format "{{.ID}}")
+                        if [ -n "$existing_port_container" ]; then
+                            docker stop $existing_port_container
+                            docker rm $existing_port_container
+                        fi
+
+                        existing_name_container=$(docker ps -a --filter "name=${DOCKER_CONTAINER}" --format "{{.ID}}")
+                        if [ -n "$existing_name_container" ]; then
+                            docker rm -f $existing_name_container
+                        fi
+                    '''
+                    // Jalankan container Netflix baru
+                    sh "docker run -d --name ${DOCKER_CONTAINER} -p 8081:80 ${DOCKER_IMAGE}"
+                }
+            }
+        }
+    }
+}
+
+	   * Klik tombol `Apply`
+	   * Klik tombol `Save`
+	   * Klik tombol Build Now
+
+10. Instalasi Node Exporter
+Bagian ini menjelaskan cara instalasi dan menjalankan Node Exporter untuk mengumpulkan metrik sistem di server ini. Node Exporter, sebagai komponen penting dalam ekosistem Prometheus, memungkinkan metrik sistem dari server ini dikumpulkan secara real-time ke server 3. Langkah-langkah ini mencakup pengunduhan Node Exporter, pembuatan pengguna sistem, konfigurasi layanan systemd, dan verifikasi bahwa Node Exporter berjalan dengan benar.
+
+  10.1. Membuat pengguna untuk Node Exporter:
+        sudo useradd --system --no-create-home --shell /bin/false node_exporter
+
+  10.2. Mengunduh dan Mengekstrak Node Exporter:
+        cd
+	    wget https://github.com/prometheus/node_exporter/releases/download/v1.6.1/node_exporter-1.6.1.linux-amd64.tar.gz
+        tar -xvf node_exporter-1.6.1.linux-amd64.tar.gz
+        sudo mv node_exporter-1.6.1.linux-amd64/node_exporter /usr/local/bin/
+        rm -rf node_exporter*
+
+  10.3. Membuat file konfigurasi systemd untuk Node Exporter:
+        sudo nano /etc/systemd/system/node_exporter.service
+       
+	    Isi file node_exporter.service:
+	    [Unit]
+	    Description=Node Exporter
+	    Wants=network-online.target
+	    After=network-online.target
+
+	    StartLimitIntervalSec=500
+	    StartLimitBurst=5
+
+	    [Service]
+	    User=node_exporter
+	    Group=node_exporter
+	    Type=simple
+	    Restart=on-failure
+	    RestartSec=5s
+	    ExecStart=/usr/local/bin/node_exporter --collector.logind
+
+[Install]
+WantedBy=multi-user.target
+
+  10.4. Mengaktifkan dan memulai layanan Node Exporter:
+        sudo systemctl enable node_exporter
+	    sudo systemctl start node_exporter
+
+  10.5. Memverifikasi status Node Exporter:
+        sudo systemctl status node_exporter
