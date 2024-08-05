@@ -5,39 +5,39 @@ Bagian ini menjelaskan langkah-langkah untuk mengonfigurasi notifikasi email di 
 
   1.1. Menyiapkan Akun Google
        - Buka Akun Google
-	   - Tab Security Section
-	   - Pastikan untuk mengaktifkan 2-Step Verification
-	   - Cari App Password pada pencarian, lalu pilih
-	   - Masukkan App name: Netflix, lalu klik Create
-	   - Simpan generated app password yang muncul: <app-password>
+       - Tab Security Section
+       - Pastikan untuk mengaktifkan 2-Step Verification
+       - Cari App Password pada pencarian, lalu pilih
+       - Masukkan App name: Netflix, lalu klik Create
+       - Simpan generated app password yang muncul: <app-password>
 
   1.2. Menambahkan Kredensial Email di Jenkins
        Dashboard > Manage Jenkins > Credentials > System > Global credentials (unrestricted)
-	   * Add Credentials
-	     - Kind: Username with password
-		 - Scope: Global (Jenkins, nodes, items, all child items, etc)
-		 - Username: dzikrimustaqim@gmail
-		 - Password: <app-password>
-		 - ID: mail
-		 - Description: mail
-	   * Klik tombol `Create`
+       * Add Credentials
+         - Kind: Username with password
+         - Scope: Global (Jenkins, nodes, items, all child items, etc)
+         - Username: dzikrimustaqim@gmail
+         - Password: <app-password>
+         - ID: mail
+         - Description: mail
+       * Klik tombol `Create`
 
   1.3. Mengonfigurasi Notifikasi Email di Jenkins
        Dashboard > Manage Jenkins > System
-	   * Extended E-mail Notification
-	     - SMTP server: smtp.gmail.com
-		 - SMTP Port: 465
-		 * Advanced
-		   - Credentials: dzikrimustaqim@gmail.com/****** (mail)
-		   - Use SSL
-	   * Klik tombol `Apply`
-	   * Klik tombol `Save`
+       * Extended E-mail Notification
+         - SMTP server: smtp.gmail.com
+         - SMTP Port: 465
+         * Advanced
+           - Credentials: dzikrimustaqim@gmail.com/****** (mail)
+           - Use SSL
+       * Klik tombol `Apply`
+       * Klik tombol `Save`
 
   1.4. Menambahkan Konfigurasi Notifikasi Email di Pipeline Jenkins
        Dashboard > Netflix > Configuration
-	   * Advanced Project Options
-	     * Pipeline
-		   * Script
+       * Advanced Project Options
+         * Pipeline
+           * Script
 
 pipeline {
     agent any
@@ -168,32 +168,32 @@ pipeline {
     }
 }
 
-	   * Klik tombol `Apply`
-	   * Klik tombol `Save`
+       * Klik tombol `Apply`
+       * Klik tombol `Save`
 
 2. Menjalankan Pipeline dan Memverifikasi Hasil
 Bagian ini mencakup langkah-langkah untuk menjalankan pipeline Jenkins yang telah dikonfigurasi dan memverifikasi hasilnya. Pipeline ini mencakup berbagai tahap, mulai dari checkout kode hingga deploy container dan pengiriman notifikasi email. Langkah-langkah ini memastikan bahwa seluruh pipeline berfungsi sesuai yang diharapkan dan bahwa semua tahapan build serta analisis keamanan dijalankan dengan baik.
 
   2.1. Menjalankan Pipeline
        * Masuk ke dashboard Jenkins.
-	   * Pilih proyek pipeline yang telah dikonfigurasi (misalnya, "Netflix").
-	   * Klik tombol "Build Now" untuk menjalankan pipeline.
-	   * Monitor proses build di halaman proyek Jenkins untuk memastikan tidak ada kesalahan yang muncul selama eksekusi pipeline.
+       * Pilih proyek pipeline yang telah dikonfigurasi (misalnya, "Netflix").
+       * Klik tombol "Build Now" untuk menjalankan pipeline.
+       * Monitor proses build di halaman proyek Jenkins untuk memastikan tidak ada kesalahan yang muncul selama eksekusi pipeline.
 	   
   2.2. Memverifikasi Hasil Build
        * Setelah pipeline selesai, periksa hasil build di halaman proyek Jenkins.
-	   * Tinjau hasil dari setiap tahap di pipeline untuk memastikan bahwa semua langkah.
-	   * Periksa tab SonarQube untuk memeriksa quality code.
-	   * Periksa tab DockerHub untuk memverifikasi image yang sudah di push.
-	   * Periksa hasil build dan log yang ditampilkan di konsol Jenkins untuk memastikan tidak ada error atau warning yang signifikan.
-	   * Verifikasi bahwa container Netflix baru telah berhasil dideploy dan berjalan di port yang sesuai (misalnya, port 8081).
+       * Tinjau hasil dari setiap tahap di pipeline untuk memastikan bahwa semua langkah.
+       * Periksa tab SonarQube untuk memeriksa quality code.
+       * Periksa tab DockerHub untuk memverifikasi image yang sudah di push.
+       * Periksa hasil build dan log yang ditampilkan di konsol Jenkins untuk memastikan tidak ada error atau warning yang signifikan.
+       * Verifikasi bahwa container Netflix baru telah berhasil dideploy dan berjalan di port yang sesuai (misalnya, port 8081).
 	   
   2.3. Memeriksa Notifikasi Email
        * Cek email untuk memastikan bahwa notifikasi email dari Jenkins dikirim dengan benar.
-	   * Verifikasi bahwa email berisi informasi yang sesuai tentang status pipeline, hasil build, dan link ke output konsol build.
-	   * Pastikan lampiran yang ditambahkan dalam email (seperti trivyfs.txt dan trivyimage.txt) ada dan dapat diakses.
+       * Verifikasi bahwa email berisi informasi yang sesuai tentang status pipeline, hasil build, dan link ke output konsol build.
+       * Pastikan lampiran yang ditambahkan dalam email (seperti trivyfs.txt dan trivyimage.txt) ada dan dapat diakses.
 	   
   2.4. Menindaklanjuti Hasil dan Memperbaiki Masalah
        * Jika ada masalah atau error yang ditemukan selama verifikasi, lakukan pemeriksaan lebih lanjut untuk menentukan penyebab masalah tersebut.
-	   * Perbaiki masalah yang ditemukan dan jalankan kembali pipeline untuk memastikan bahwa semua masalah telah diatasi.
-	   * Dokumentasikan hasil dan perubahan yang dilakukan untuk referensi di masa depan dan untuk memastikan bahwa pipeline tetap berfungsi dengan baik.
+       * Perbaiki masalah yang ditemukan dan jalankan kembali pipeline untuk memastikan bahwa semua masalah telah diatasi.
+       * Dokumentasikan hasil dan perubahan yang dilakukan untuk referensi di masa depan dan untuk memastikan bahwa pipeline tetap berfungsi dengan baik.
