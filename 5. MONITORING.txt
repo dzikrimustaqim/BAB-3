@@ -29,31 +29,31 @@ Prometheus adalah perangkat lunak open-source yang digunakan untuk monitoring da
   2.5. Membuat file konfigurasi systemd untuk Prometheus
        sudo nano /etc/systemd/system/prometheus.service
        
-	   Isi file prometheus.service:
-	   [Unit]
-	   Description=Prometheus
-	   Wants=network-online.target
-	   After=network-online.target
+# Isi file prometheus.service:
+[Unit]
+Description=Prometheus
+Wants=network-online.target
+After=network-online.target
 
-	   StartLimitIntervalSec=500
-	   StartLimitBurst=5
+StartLimitIntervalSec=500
+StartLimitBurst=5
 
-	   [Service]
-	   User=prometheus
-	   Group=prometheus
-	   Type=simple
-	   Restart=on-failure
-	   RestartSec=5s
-	   ExecStart=/usr/local/bin/prometheus \
-	     --config.file=/etc/prometheus/prometheus.yml \
-	     --storage.tsdb.path=/data \
-	     --web.console.templates=/etc/prometheus/consoles \
-	     --web.console.libraries=/etc/prometheus/console_libraries \
-	     --web.listen-address=0.0.0.0:9090 \
-	     --web.enable-lifecycle
+[Service]
+User=prometheus
+Group=prometheus
+Type=simple
+Restart=on-failure
+RestartSec=5s
+ExecStart=/usr/local/bin/prometheus \
+  --config.file=/etc/prometheus/prometheus.yml \
+  --storage.tsdb.path=/data \
+  --web.console.templates=/etc/prometheus/consoles \
+  --web.console.libraries=/etc/prometheus/console_libraries \
+  --web.listen-address=0.0.0.0:9090 \
+  --web.enable-lifecycle
 
-	   [Install]
-	   WantedBy=multi-user.target
+[Install]
+WantedBy=multi-user.target
 
   2.6. Mengaktifkan dan memulai layanan Prometheus:
        sudo systemctl enable prometheus
@@ -70,36 +70,37 @@ Untuk memantau Jenkins, plugin Prometheus Metrics perlu terinstal di Jenkins. Be
 
   3.1. Masuk ke Dashboard Jenkins
        Manage Jenkins > Plugins
-	   * Available plugins
+       * Available plugins
          - Prometheus metrics
-	   * Klik tombol `Install`
-	   * Klik tombol `Restart Jenkins when installation is complete and no jobs are running`
+       * Klik tombol `Install`
+       * Klik tombol `Restart Jenkins when installation is complete and no jobs are running`
 
 4. Konfigurasi Prometheus
 Untuk mengintegrasikan semua komponen yang dimonitor, kita perlu menambahkan konfigurasi pada file prometheus.yml.
 
   4.1. Membuat file konfigurasi prometheus.yml:
        sudo nano /etc/prometheus/prometheus.yml
-	   
-	   Tambahkan isi file prometheus.yml:
-	   scrape_configs:
-	     - job_name: "prometheus"
-	       static_configs:
-	         - targets: ["localhost:9090"]
 
-	     - job_name: "mainServer"
-	       static_configs:
-	         - targets: ["<server1-publicIP>:9100"]
+```
+# Tambahkan isi file prometheus.yml:
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
 
-	     - job_name: "jenkins"
-	       metrics_path: "/prometheus"
-	       static_configs:
-	         - targets: ["<server1-publicIP>:8080"]
+  - job_name: "mainServer"
+    static_configs:
+      - targets: ["<server1-publicIP>:9100"]
 
-	     - job_name: 'kubernetesCluster'
-	       metrics_path: '/metrics'
-	       static_configs:
-	         - targets: ["<server3-publicIP>:9100"]
+  - job_name: "jenkins"
+    metrics_path: "/prometheus"
+    static_configs:
+      - targets: ["<server1-publicIP>:8080"]
+
+  - job_name: 'kubernetesCluster'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ["<server3-publicIP>:9100"]
 
   4.2. Memeriksa validitas file konfigurasi:
        promtool check config /etc/prometheus/prometheus.yml
@@ -108,7 +109,7 @@ Untuk mengintegrasikan semua komponen yang dimonitor, kita perlu menambahkan kon
        curl -X POST http://localhost:9090/-/reload
 	   
   4.4. Verifikasi bahwa semua target sudah UP:
-       * Buka tab Prometheus di browser dan pastikan semua target sudah UP.
+       Buka tab Prometheus di browser dan pastikan semua target sudah UP.
 
 5. Instalasi Grafana
 Grafana adalah platform open-source untuk analitik dan monitoring. Langkah-langkah berikut menjelaskan instalasi Grafana pada server.
@@ -139,22 +140,22 @@ Langkah-langkah berikut menjelaskan konfigurasi Grafana untuk menghubungkan deng
 
   6.1. Mengakses Grafana.
        * Buka browser dan akses Grafana menggunakan IP server dan port 3000.
-	   * Login dengan kredensial default (admin/admin) dan lewati langkah update password.
+       * Login dengan kredensial default (admin/admin) dan lewati langkah update password.
 	   
   6.2. Menambahkan Data Source.
        * Navigasi ke Dashboard > Data Sources.
-	   * Pilih Prometheus dan masukkan URL Prometheus (http://<server-IP>:9090).
-	   * Klik tombol `Save & Test`.
+       * Pilih Prometheus dan masukkan URL Prometheus (http://<server-IP>:9090).
+       * Klik tombol `Save & Test`.
 	   
   6.3. Mengimpor Dashboard Jenkins: Performance and Health Overview.
        * Klik tombol (+) pada pojok kanan atas, lalu pilih Import dashboard.
-	   * Masukkan ID dashboard dari https://grafana.com/grafana/dashboards/ (1860) dan klik Load.
-	   * Pilih Prometheus sebagai data source dan klik Import.
+       * Masukkan ID dashboard dari https://grafana.com/grafana/dashboards/ (1860) dan klik Load.
+       * Pilih Prometheus sebagai data source dan klik Import.
 	   
   6.4. Mengimpor Dashboard Node Exporter Full
        * Klik tombol (+) pada pojok kanan atas, lalu pilih Import dashboard.
-	   * Masukkan ID dashboard dari https://grafana.com/grafana/dashboards/ (9964) dan klik Load.
-	   * Pilih Prometheus sebagai data source dan klik Import.
+       * Masukkan ID dashboard dari https://grafana.com/grafana/dashboards/ (9964) dan klik Load.
+       * Pilih Prometheus sebagai data source dan klik Import.
 	   
 7. Verifikasi Konfigurasi
 Memverifikasi konfigurasi Prometheus dan Node Exporter pada Server 1 dan Server 3 untuk memastikan bahwa semua komponen monitoring berjalan dengan baik dan dapat mengirim serta menerima metrik yang diperlukan.
