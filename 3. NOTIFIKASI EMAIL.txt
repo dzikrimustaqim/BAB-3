@@ -4,12 +4,12 @@ C. Menerapkan Notifikasi Email (Server 1) iadf vcdg yplc lfkp
 Bagian ini menjelaskan langkah-langkah untuk mengonfigurasi notifikasi email di Jenkins menggunakan akun Gmail. Langkah-langkah ini termasuk mengaktifkan verifikasi dua langkah di akun Google, membuat password aplikasi, dan menambahkan kredensial email di Jenkins. Hal ini memastikan bahwa notifikasi pipeline dapat dikirim melalui email, memberikan informasi real-time tentang status build.
 
   1.1. Menyiapkan Akun Google
-       - Buka Akun Google
-       - Tab Security Section
-       - Pastikan untuk mengaktifkan 2-Step Verification
-       - Cari App Password pada pencarian, lalu pilih
-       - Masukkan App name: Netflix, lalu klik Create
-       - Simpan generated app password yang muncul: <app-password>
+       * Buka Akun Google
+       * Tab Security Section
+       * Pastikan untuk mengaktifkan 2-Step Verification
+       * Cari App Password pada pencarian, lalu pilih
+       * Masukkan App name: Netflix, lalu klik Create
+       * Simpan generated app password yang muncul: <app-password>
 
   1.2. Menambahkan Kredensial Email di Jenkins
        Dashboard > Manage Jenkins > Credentials > System > Global credentials (unrestricted)
