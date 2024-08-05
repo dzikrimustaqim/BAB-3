@@ -35,7 +35,7 @@ Bagian ini mencakup langkah-langkah untuk menjalankan container SonarQube dan me
 	   
   3.2. Konfigurasi Awal SonarQube
        - Login dengan kredensial `admin/admin`.
-	   - Setel Kata Sandi Baru: `pass`.
+       - Setel Kata Sandi Baru: `pass`.
 
 4. Instalasi Trivy
 Bagian ini menjelaskan proses instalasi Trivy, alat analisis keamanan yang digunakan untuk memindai kerentanan dalam filesystem dan gambar Docker. Langkah-langkah ini mencakup pengunduhan kunci repositori, menambahkan repositori Trivy ke sistem, dan menginstal alat tersebut.
@@ -58,7 +58,7 @@ Bagian ini mencakup langkah-langkah untuk menginstal Jenkins, alat otomatisasi y
 
   5.1. Menginstal Prasyarat Jenkins
        sudo apt update
-	   sudo apt install fontconfig openjdk-17-jre
+       sudo apt install fontconfig openjdk-17-jre
 	   
   5.2. Mengunduh dan Menambahkan Kunci Repositori Jenkins
        sudo wget -O /usr/share/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
@@ -68,20 +68,20 @@ Bagian ini mencakup langkah-langkah untuk menginstal Jenkins, alat otomatisasi y
 	   
   5.4. Menginstal Jenkins
        sudo apt-get update
-	   sudo apt-get install jenkins
+       sudo apt-get install jenkins
 	   
   5.5. Memulai dan Mengaktifkan Jenkins
        sudo systemctl start jenkins
-	   sudo systemctl enable jenkins
+       sudo systemctl enable jenkins
 	   
   5.6. Mengambil Password Awal Jenkins
        sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 	   
   5.7. Mengonfigurasi Awal Jenkins
        - Buka tab browser dengan alamat <IP-Publik>:8080
-	   - Sign in to Jenkins
-	     - Username: admin
-	     - Password: <password>
+       - Sign in to Jenkins
+         - Username: admin
+         - Password: <password>
        - Install suggested plugins
        - Skip and continue as Admin
        - Instance Configuration > default
@@ -93,11 +93,11 @@ Bagian ini menjelaskan konfigurasi lebih lanjut di Jenkins, termasuk instalasi p
 
   6.1. Menginstal Plugin yang Diperlukan
        Dashboard > Manage Jenkins > Plugins > Available plugins
-	   * Available plugins
+       * Available plugins
          - NodeJS
-	     - Eclipse Temurin installer
-	     - SonarQube Scanner
-	   * Klik tombol `Install`
+         - Eclipse Temurin installer
+         - SonarQube Scanner
+       * Klik tombol `Install`
 
   6.2. Menambahkan Alat dan Konfigurasi Plugin di Jenkins
        Dashboard > Manage Jenkins > Tools
@@ -106,59 +106,57 @@ Bagian ini menjelaskan konfigurasi lebih lanjut di Jenkins, termasuk instalasi p
          - Install automatically
          - Install from adoptium.net
          - Version: jdk-17.0.8.1+1
-	   * Add NodeJS:
-	     - Name: node16
+       * Add NodeJS:
+         - Name: node16
          - Version: NodeJS 16.2.0
 
   6.3. Mengonfigurasi SonarQube di Jenkins
-	   - Tab SonarQube
-	     Administrations > Security > Users
-	     * Update Tokens
-	       - Name: jenkins
-		   - Expires in: 30 days
-		   - Generate
-		   - Copy tokens <password>
+       a. Tab SonarQube
+       Administrations > Security > Users
+          * Update Tokens
+            - Name: jenkins
+            - Expires in: 30 days
+	    - Generate
+            - Copy tokens <password>
 
-	   - Tab Jenkins
-	     Dashboard > Manage Jenkins > Credentials > System > Global credentials (unrestricted)
-	     * Add Credentials
-	       - Kind: Secret Text
-		   - Scope: Global
-		   - Secret: <password>
-		   - ID: sonar-token
-		   - Description: sonar-token
+        b. Tab Jenkins
+        Dashboard > Manage Jenkins > Credentials > System > Global credentials (unrestricted)
+	   * Add Credentials
+	     - Kind: Secret Text
+	     - Scope: Global
+	     - Secret: <password>
+	     - ID: sonar-token
+	     - Description: sonar-token
 	   
-	     Dashboard > Manage Jenkins > System
-	     * Add SonarQube:
-	       - Name: sonar-server
-		   - Server URL: <IP-Public>:9000/
-		   - Server authentication token: sonar-token
-	   
-	     * Klik tombol `Apply`
-		 * Klik tombol `Save`
+	Dashboard > Manage Jenkins > System
+	   * Add SonarQube:
+	     - Name: sonar-server
+	     - Server URL: <IP-Public>:9000/
+	     - Server authentication token: sonar-token
+	   * Klik tombol `Apply`
+	   * Klik tombol `Save`
 
   6.4. Menambahkan SonarQube Scanner di Jenkins
        Dashboard > Manage Jenkins > Tools
-	   * Add SonarQube Scanner
-	     - Name: sonar-scanner
-		 
-	     * Klik tombol `Apply`
-		 * Klik tombol `Save`
+       * Add SonarQube Scanner
+         - Name: sonar-scanner	 
+       * Klik tombol `Apply`
+       * Klik tombol `Save`
 
 7. Membuat Pipeline untuk Netflix di Jenkins
 Bagian ini mencakup pembuatan dan konfigurasi pipeline di Jenkins untuk proyek Netflix. Pipeline ini mengotomatisasi berbagai tahap, termasuk checkout kode, analisis SonarQube, pemasangan dependensi, dan pemeriksaan kualitas kode, sehingga memudahkan dalam pengelolaan dan pengujian aplikasi secara kontinu.
 
   7.1. Membuat Item Baru di Jenkins
        Dashboard > New Item
-	     - Enter an item name: Netflix
-		 - Pipeline
-	   *  Klik tombol `OK`
+         - Enter an item name: Netflix
+         - Pipeline
+       *  Klik tombol `OK`
 	   
   7.2. Konfigurasi Pipeline
        Dashboard > Netflix > Configuration
-	   * Advanced Project Options
-	     * Pipeline
-		   * Script
+       * Advanced Project Options
+         * Pipeline
+           * Script
 
 pipeline {
     agent any
@@ -206,60 +204,60 @@ pipeline {
     }
 }
 
-	   * Klik tombol `Apply`
-	   * Klik tombol `Save`
-	   * Klik tombol Build Now
+       * Klik tombol `Apply`
+       * Klik tombol `Save`
+       * Klik tombol Build Now
 
 8. Menginstal dan Mengonfigurasi Plugin Tambahan di Jenkins
 Bagian ini mencakup instalasi plugin tambahan di Jenkins untuk meningkatkan fungsionalitas pipeline, seperti OWASP Dependency-Check dan plugin Docker. Langkah-langkah ini juga termasuk penambahan kredensial Docker Hub di Jenkins untuk memungkinkan pembangunan dan penerapan gambar Docker secara otomatis.
 
   8.1. Menginstal Plugin Tambahan
        Dashboard > Manage Jenkins > Plugins
-	   * Available plugins
+       * Available plugins
          - OWASP Dependency-Check
-		 - Docker
-		 - Docker Commons
-		 - Docker Pipeline
-		 - Docker API
-		 - docker-build-steps
-	   * Klik tombol `Install`
+         - Docker
+         - Docker Commons
+         - Docker Pipeline
+         - Docker API
+         - docker-build-steps
+       * Klik tombol `Install`
 	   
   8.2. Menambahkan Kredensial Docker Hub di Jenkins
        Dashboard > Manage Jenkins > Credentials > System > Global credentials (unrestricted)
-	   * Add Credentials
-	     - Kind: Username with password
-		 - Scope: Global
-		 - Username: dzikrimustaqim
-		 - Password: <Password-DockerHub>
-		 - ID: docker
-		 - Description: docker
-	   * Klik tombol `Create`
+       * Add Credentials
+         - Kind: Username with password
+         - Scope: Global
+         - Username: dzikrimustaqim
+         - Password: <Password-DockerHub>
+         - ID: docker
+         - Description: docker
+       * Klik tombol `Create`
 
   8.3. Menambahkan Alat Tambahan di Jenkins
        Dashboard > Manage Jenkins > Tools
-	   * Add Dependency-Check:
-	     - Name: DP-Check
-		 - Install automatically
-		 - Install from github.com
-	   * Add Docker:
-	     - Name: docker
-		 - Install automatically
-		 - Download from docker.com
-	   * Klik tombol `Apply`
-	   * Klik tombol `Save`
+       * Add Dependency-Check:
+         - Name: DP-Check
+         - Install automatically
+         - Install from github.com
+       * Add Docker:
+         - Name: docker
+         - Install automatically
+         - Download from docker.com
+       * Klik tombol `Apply`
+       * Klik tombol `Save`
 
 9. Mengonfigurasi Pipeline untuk Netflix dengan Integrasi Keamanan
 Bagian ini menjelaskan konfigurasi pipeline Jenkins yang lebih komprehensif dengan menambahkan langkah-langkah keamanan seperti OWASP Dependency-Check dan Trivy untuk analisis keamanan. Pipeline ini juga mencakup langkah untuk membangun dan mendorong gambar Docker ke Docker Hub, serta menjalankan container aplikasi secara otomatis.
 
   9.1. Menambahkan Jenkins ke Grup Docker
        sudo usermod -aG docker jenkins
-	   sudo systemctl restart jenkins
+       sudo systemctl restart jenkins
 
   9.2. Memperbarui Konfigurasi Pipeline di Jenkins
        Dashboard > Netflix > Configuration
-	   * Advanced Project Options
-	     * Pipeline
-		   * Script
+       * Advanced Project Options
+         * Pipeline
+           * Script
 
 pipeline {
     agent any
@@ -358,9 +356,9 @@ pipeline {
     }
 }
 
-	   * Klik tombol `Apply`
-	   * Klik tombol `Save`
-	   * Klik tombol Build Now
+       * Klik tombol `Apply`
+       * Klik tombol `Save`
+       * Klik tombol Build Now
 
 10. Instalasi Node Exporter
 Bagian ini menjelaskan cara instalasi dan menjalankan Node Exporter untuk mengumpulkan metrik sistem di server ini. Node Exporter, sebagai komponen penting dalam ekosistem Prometheus, memungkinkan metrik sistem dari server ini dikumpulkan secara real-time ke server 3. Langkah-langkah ini mencakup pengunduhan Node Exporter, pembuatan pengguna sistem, konfigurasi layanan systemd, dan verifikasi bahwa Node Exporter berjalan dengan benar.
@@ -370,7 +368,7 @@ Bagian ini menjelaskan cara instalasi dan menjalankan Node Exporter untuk mengum
 
   10.2. Mengunduh dan Mengekstrak Node Exporter:
         cd
-	    wget https://github.com/prometheus/node_exporter/releases/download/v1.6.1/node_exporter-1.6.1.linux-amd64.tar.gz
+        wget https://github.com/prometheus/node_exporter/releases/download/v1.6.1/node_exporter-1.6.1.linux-amd64.tar.gz
         tar -xvf node_exporter-1.6.1.linux-amd64.tar.gz
         sudo mv node_exporter-1.6.1.linux-amd64/node_exporter /usr/local/bin/
         rm -rf node_exporter*
@@ -378,29 +376,29 @@ Bagian ini menjelaskan cara instalasi dan menjalankan Node Exporter untuk mengum
   10.3. Membuat file konfigurasi systemd untuk Node Exporter:
         sudo nano /etc/systemd/system/node_exporter.service
        
-	    Isi file node_exporter.service:
-	    [Unit]
-	    Description=Node Exporter
-	    Wants=network-online.target
-	    After=network-online.target
+	Isi file node_exporter.service:
+[Unit]
+Description=Node Exporter
+Wants=network-online.target
+After=network-online.target
 
-	    StartLimitIntervalSec=500
-	    StartLimitBurst=5
+StartLimitIntervalSec=500
+StartLimitBurst=5
 
-	    [Service]
-	    User=node_exporter
-	    Group=node_exporter
-	    Type=simple
-	    Restart=on-failure
-	    RestartSec=5s
-	    ExecStart=/usr/local/bin/node_exporter --collector.logind
+[Service]
+User=node_exporter
+Group=node_exporter
+Type=simple
+Restart=on-failure
+RestartSec=5s
+ExecStart=/usr/local/bin/node_exporter --collector.logind
 
 [Install]
 WantedBy=multi-user.target
 
   10.4. Mengaktifkan dan memulai layanan Node Exporter:
         sudo systemctl enable node_exporter
-	    sudo systemctl start node_exporter
+	sudo systemctl start node_exporter
 
   10.5. Memverifikasi status Node Exporter:
         sudo systemctl status node_exporter
