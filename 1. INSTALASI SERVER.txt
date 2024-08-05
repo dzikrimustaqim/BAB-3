@@ -18,164 +18,164 @@ Service EC2 memiliki fitur bawaan yaitu Security Group, ini dapat mengatur atura
 2.1. Security Groups (mainServer)
 - Pada halaman Security Groups, pilih tombol Create security group.
 - Isikan form "Create security group" sebagai berikut:
-  - Basic details
+  * Basic details
     - Security group name: mainServer-sg
-	- Description: Allows all port requirements on the mainServer
-	- VPC: default
-  - Inbound rules
+      - Description: Allows all port requirements on the mainServer
+      - VPC: default
+  * Inbound rules
     - Add rule
       - Type: SSH
-	  - Protocol: TCP
-	  - Port range: 22
-	  - Source: Anywhere-IPv4
-	  - Description: -
+      - Protocol: TCP
+      - Port range: 22
+      - Source: Anywhere-IPv4
+      - Description: -
     - Add rule
       - Type: HTTP
       - Protocol: TCP
-	  - Port range: 80
-	  - Source: Anywhere-IPv4
-	  - Description: -
+      - Port range: 80
+      - Source: Anywhere-IPv4
+      - Description: -
     - Add rule
       - Type: HTTPS
-	  - Protocol: TCP
-	  - Port range: 443
-	  - Source: Anywhere-IPv4
-	  - Description: -
+      - Protocol: TCP
+      - Port range: 443
+      - Source: Anywhere-IPv4
+      - Description: -
     - Add rule
       - Type: HTTPS
-	  - Protocol: TCP
-	  - Port range: 8080
-	  - Source: Anywhere-IPv4
-	  - Description: jenkins
+      - Protocol: TCP
+      - Port range: 8080
+      - Source: Anywhere-IPv4
+      - Description: jenkins
     - Add rule
       - Type: Custom TCP
-	  - Protocol: TCP
-	  - Port range: 8081
-	  - Source: Anywhere-IPv4
-	  - Description: app-port
+      - Protocol: TCP
+      - Port range: 8081
+      - Source: Anywhere-IPv4
+      - Description: app-port
     - Add rule
       - Type: Custom TCP
-	  - Protocol: TCP
-	  - Port range: 9000
-	  - Source: Anywhere-IPv4
-	  - Description: sonarqube
+      - Protocol: TCP
+      - Port range: 9000
+      - Source: Anywhere-IPv4
+      - Description: sonarqube
     - Add rule
       - Type: Custom TCP
-	  - Protocol: TCP
-	  - Port range: 9100
-	  - Source: Anywhere-IPv4
-	  - Description: nodeExporter
+      - Protocol: TCP
+      - Port range: 9100
+      - Source: Anywhere-IPv4
+      - Description: nodeExporter
     - Add rule
       - Type: Custom TCP
-	  - Protocol: TCP
-	  - Port range: 9090
-	  - Source: Anywhere-IPv4
-	  - Description: prometheus
-  - Outbound rules
+      - Protocol: TCP
+      - Port range: 9090
+      - Source: Anywhere-IPv4
+      - Description: prometheus
+  * Outbound rules
       - Type: All traffic
-	  - Protocol: All
-	  - Port range: All
-	  - Source: Anywhere-IPv4
-	  - Description: -
-  - Create security group
+      - Protocol: All
+      - Port range: All
+      - Source: Anywhere-IPv4
+      - Description: -
+  * Create security group
 
 2.2. Security Groups (kubernetesCluster)
 - Pada halaman Security Groups, pilih tombol Create security group.
 - Isikan form "Create security group" sebagai berikut:
-  - Basic details
+  * Basic details
     - Security group name: kubernetesCluster-sg
-	- Description: Allows all port requirements on the kubernetesCluster
-	- VPC: default
-  - Inbound rules
+      - Description: Allows all port requirements on the kubernetesCluster
+      - VPC: default
+  * Inbound rules
     - Add rule
       - Type: SSH
-	  - Protocol: TCP
-	  - Port range: 22
-	  - Source: Anywhere-IPv4
-	  - Description: -
+      - Protocol: TCP
+      - Port range: 22
+      - Source: Anywhere-IPv4
+      - Description: -
     - Add rule
       - Type: HTTP
       - Protocol: TCP
-	  - Port range: 80
-	  - Source: Anywhere-IPv4
-	  - Description: -
+      - Port range: 80
+      - Source: Anywhere-IPv4
+      - Description: -
     - Add rule
       - Type: HTTPS
-	  - Protocol: TCP
-	  - Port range: 443
-	  - Source: Anywhere-IPv4
-	  - Description: -
+      - Protocol: TCP
+      - Port range: 443
+      - Source: Anywhere-IPv4
+      - Description: -
     - Add rule
       - Type: Custom TCP
-	  - Protocol: TCP
-	  - Port range: 30007
-	  - Source: Anywhere-IPv4
-	  - Description: app-nodePort
+      - Protocol: TCP
+      - Port range: 30007
+      - Source: Anywhere-IPv4
+      - Description: app-nodePort
     - Add rule
       - Type: Custom TCP
-	  - Protocol: TCP
-	  - Port range: 9100
-	  - Source: Anywhere-IPv4
-	  - Description: nodeExporter
+      - Protocol: TCP
+      - Port range: 9100
+      - Source: Anywhere-IPv4
+      - Description: nodeExporter
     - Add rule
       - Type: Custom TCP
-	  - Protocol: TCP
-	  - Port range: 8080
-	  - Source: Anywhere-IPv4
-	  - Description: argocd
-  - Outbound rules
+      - Protocol: TCP
+      - Port range: 8080
+      - Source: Anywhere-IPv4
+      - Description: argocd
+  * Outbound rules
       - Type: All traffic
-	  - Protocol: All
-	  - Port range: All
-	  - Source: Anywhere-IPv4
-	  - Description: -
-  - Create security group
+      - Protocol: All
+      - Port range: All
+      - Source: Anywhere-IPv4
+      - Description: -
+  * Create security group
 
 2.3. Security Groups (monitoring)
 - Pada halaman Security Groups, pilih tombol Create security group.
 - Isikan form "Create security group" sebagai berikut:
-  - Basic details
+  * Basic details
     - Security group name: monitoring-sg
-	- Description: Allows all port requirements on the monitoring
-	- VPC: default
-  - Inbound rules
+      - Description: Allows all port requirements on the monitoring
+      - VPC: default
+  * Inbound rules
     - Add rule
       - Type: SSH
-	  - Protocol: TCP
-	  - Port range: 22
-	  - Source: Anywhere-IPv4
-	  - Description: -
+      - Protocol: TCP
+      - Port range: 22
+      - Source: Anywhere-IPv4
+      - Description: -
     - Add rule
       - Type: HTTP
       - Protocol: TCP
-	  - Port range: 80
-	  - Source: Anywhere-IPv4
-	  - Description: -
+      - Port range: 80
+      - Source: Anywhere-IPv4
+      - Description: -
     - Add rule
       - Type: HTTPS
-	  - Protocol: TCP
-	  - Port range: 443
-	  - Source: Anywhere-IPv4
-	  - Description: -
+      - Protocol: TCP
+      - Port range: 443
+      - Source: Anywhere-IPv4
+      - Description: -
     - Add rule
       - Type: Custom TCP
-	  - Protocol: TCP
-	  - Port range: 8080
-	  - Source: Anywhere-IPv4
-	  - Description: jenkins
+      - Protocol: TCP
+      - Port range: 8080
+      - Source: Anywhere-IPv4
+      - Description: jenkins
     - Add rule
       - Type: Custom TCP
-	  - Protocol: TCP
-	  - Port range: 8081
-	  - Source: Anywhere-IPv4
-	  - Description: app-port
-  - Outbound rules
+      - Protocol: TCP
+      - Port range: 8081
+      - Source: Anywhere-IPv4
+      - Description: app-port
+  * Outbound rules
       - Type: All traffic
-	  - Protocol: All
-	  - Port range: All
-	  - Source: Anywhere-IPv4
-	  - Description: -
-  - Create security group
+      - Protocol: All
+      - Port range: All
+      - Source: Anywhere-IPv4
+      - Description: -
+  * Create security group
 
 3. Persiapan Server 1 (mainServer)
 Pada proyek ini, server 1 akan diterapkan sebagai server yang akan digunakan untuk menjalankan prinsip utama pada alur kerja DevSecOps. Server ini akan mengelola pipeline CI/CD, termasuk kompilasi kode, pengujian otomatis, analisis keamanan, dan deployment otomatis ke sebuah layanan repositori berbasis cloud yang memungkinkan pengguna untuk menyimpan, mengelola, dan berbagi image Docker. 
@@ -187,23 +187,22 @@ Sebagai tambahan, Node Exporter akan diterapkan pada server ini untuk monitoring
 3.1. Instances
 - Pada halaman Instances, pilih tombol Launch Instance.
 - Isikan form "Launch an Instance" sebagai berikut:
-  - Name and tags
+  * Name and tags
     -Name: mainServer
-  - Application and OS Images (Amazon Machine Image)
+  * Application and OS Images (Amazon Machine Image)
     - Quick Start: Ubuntu
     - Amazon Machine Image (AMI): Ubuntu Server 24.04 LTS (HVM), SSD Volume Type
-	- Architecture: 64-bit (x86)
-  - Instance type
+    - Architecture: 64-bit (x86)
+  * Instance type
     - Instance type: t2.large
-  - Key pair (login)
+  * Key pair (login)
     - Key pair name: netflix-kp
-  - Network settings
-    - Firewall (security groups)
-	  - Select existing security group
-	- Common security groups: mainServer-sg
-  - Configure storage
+  * Network settings
+    - Firewall (security groups): Select existing security group
+    - Common security groups: mainServer-sg
+  * Configure storage
     - 1x "25" GiB "gp3" Root volume
-  - Launch Instance
+  * Launch Instance
 
 3.2. Elastic IPs
 - Pada halaman Elastic IP addresses, pilih tombol Allocate Elastic IP address.
@@ -213,7 +212,7 @@ Sebagai tambahan, Node Exporter akan diterapkan pada server ini untuk monitoring
 - Isikan form "Associate Elastic IP address" sebagai berikut:
   - Elastic IP address: <Static-IP>
     - Resource type: Instance
-	- Instance: mainServer
+    - Instance: mainServer
   - Associate
 
 4. Persiapan Server 2 (kubernetesCluster)
@@ -224,23 +223,22 @@ Selain itu, Node Exporter akan diinstal di server ini untuk menyerap metriks kin
 4.1. Instances
 - Pada halaman Instances, pilih tombol Launch Instance.
 - Isikan form "Launch an Instance" sebagai berikut:
-  - Name and tags
+  * Name and tags
     -Name: kubernetesCluster
-  - Application and OS Images (Amazon Machine Image)
+  * Application and OS Images (Amazon Machine Image)
     - Quick Start: Ubuntu
     - Amazon Machine Image (AMI): Ubuntu Server 24.04 LTS (HVM), SSD Volume Type
-	- Architecture: 64-bit (x86)
-  - Instance type
+    - Architecture: 64-bit (x86)
+  * Instance type
     - Instance type: t2.medium
-  - Key pair (login)
+  * Key pair (login)
     - Key pair name: netflix-kp
-  - Network settings
-    - Firewall (security groups)
-	  - Select existing security group
-	- Common security groups: kubernetesCluster-sg
-  - Configure storage
+  * Network settings
+    - Firewall (security groups): Select existing security group
+    - Common security groups: kubernetesCluster-sg
+  * Configure storage
     - 1x "25" GiB "gp3" Root volume
-  - Launch Instance
+  * Launch Instance
 
 4.2. Elastic IPs
 - Pada halaman Elastic IP addresses, pilih tombol Allocate Elastic IP address.
@@ -250,7 +248,7 @@ Selain itu, Node Exporter akan diinstal di server ini untuk menyerap metriks kin
 - Isikan form "Associate Elastic IP address" sebagai berikut:
   - Elastic IP address: <Static-IP>
     - Resource type: Instance
-	- Instance: kubernetesCluster
+    - Instance: kubernetesCluster
   - Associate
 
 5. Persiapan Server 3 (monitoring)
@@ -261,23 +259,22 @@ Grafana akan diinstal di server ini untuk menyediakan visualisasi data secara re
 5.1. Instances
 - Pada halaman Instances, pilih tombol Launch Instance.
 - Isikan form "Launch an Instance" sebagai berikut:
-  - Name and tags
-    -Name: monitoring
-  - Application and OS Images (Amazon Machine Image)
+  * Name and tags
+    - Name: monitoring
+  * Application and OS Images (Amazon Machine Image)
     - Quick Start: Ubuntu
     - Amazon Machine Image (AMI): Ubuntu Server 24.04 LTS (HVM), SSD Volume Type
-	- Architecture: 64-bit (x86)
-  - Instance type
+    - Architecture: 64-bit (x86)
+  * Instance type
     - Instance type: t2.medium
-  - Key pair (login)
+  * Key pair (login)
     - Key pair name: netflix-kp
-  - Network settings
-    - Firewall (security groups)
-	  - Select existing security group
-	- Common security groups: monitoring-sg
-  - Configure storage
+  * Network settings
+    - Firewall (security groups): Select existing security group
+    - Common security groups: monitoring-sg
+  * Configure storage
     - 1x "20" GiB "gp3" Root volume
-  - Launch Instance
+  * Launch Instance
   
 5.2. Elastic IPs
 - Pada halaman Elastic IP addresses, pilih tombol Allocate Elastic IP address.
@@ -287,7 +284,7 @@ Grafana akan diinstal di server ini untuk menyediakan visualisasi data secara re
 - Isikan form "Associate Elastic IP address" sebagai berikut:
   - Elastic IP address: <Static-IP>
     - Resource type: Instance
-	- Instance: monitoring
+    - Instance: monitoring
   - Associate
 
 6. Notifikasi Email
