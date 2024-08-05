@@ -88,40 +88,39 @@ Pada bagian ini akan dijelaskan langkah-langkah konfigurasi server yang digunaka
 9. Deployment Aplikasi Netflix di Argo CD
   9.1. Login ke Argo CD
        * Username: admin
-	   * Password: <password>
+       * Password: <password>
 	   
   9.2. Menambahkan Repository ke Argo CD
        * Klik pada menu Settings.
-	   * Pilih Repositories.
-	   * Klik tombol CONNECT REPO.
-	   * Pilih metode koneksi VIA HTTPS.
-	   * Isi informasi koneksi repository:
-	     - Type: git
-		 - Project: default
-		 - Repository URL: https://github.com/dzikrimustaqim/DevSecOps-Project.git
-	   * Klik tombol CONNECT.
+       * Pilih Repositories.
+       * Klik tombol CONNECT REPO.
+       * Pilih metode koneksi VIA HTTPS.
+       * Isi informasi koneksi repository:
+         - Type: git
+         - Project: default
+         - Repository URL: https://github.com/dzikrimustaqim/DevSecOps-Project.git
+       * Klik tombol CONNECT.
 	   
   9.3. Membuat Aplikasi Baru di Argo CD
        * Klik tombol NEW APP.
-	   * Pada bagian GENERAL, isi informasi:
-	     - Application Name: netflix
-		 - Project Name: default
-		 - Sync Policy: Automatic
-	   * Pada bagian SOURCE, isi informasi:
-	     - Repository URL: https://github.com/dzikrimustaqim/DevSecOps-Project.git
-		 - Revision: HEAD
-		 - Path: Kubernetes
-	   * Pada bagian DESTINATION, isi informasi:
-	     - Cluster URL: https://kubernetes.default.svc
-		 - Namespace: default
-	   * Klik tombol CREATE.
+       * Pada bagian GENERAL, isi informasi:
+         - Application Name: netflix
+         - Project Name: default
+         - Sync Policy: Automatic
+       * Pada bagian SOURCE, isi informasi:
+         - Repository URL: https://github.com/dzikrimustaqim/DevSecOps-Project.git
+         - Revision: HEAD
+         - Path: Kubernetes
+       * Pada bagian DESTINATION, isi informasi:
+         - Cluster URL: https://kubernetes.default.svc
+         - Namespace: default
+       * Klik tombol CREATE.
 	   
   9.4. Menyinkronkan Aplikasi Netflix
        * Masuk ke aplikasi netflix di Argo CD.
-	   * Klik tombol SYNC.
-	   * Klik tombol SYNCHRONIZE.
-	   * Verifikasi bahwa sinkronisasi berhasil dengan melihat LAST SYNC RESULT: Sync OK.
+       * Klik tombol SYNC.
+       * Klik tombol SYNCHRONIZE.
+       * Verifikasi bahwa sinkronisasi berhasil dengan melihat LAST SYNC RESULT: Sync OK.
 	   
   9.5. Port-Forward untuk Aplikasi Netflix
-       Untuk mengakses aplikasi Netflix, lakukan port-forward:
-	   kubectl port-forward svc/netflix-app -n default --address 0.0.0.0 30007:80
+       kubectl port-forward svc/netflix-app -n default --address 0.0.0.0 30007:80
