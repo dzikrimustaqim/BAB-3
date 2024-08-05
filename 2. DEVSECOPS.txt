@@ -78,15 +78,15 @@ Bagian ini mencakup langkah-langkah untuk menginstal Jenkins, alat otomatisasi y
        sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 	   
   5.7. Mengonfigurasi Awal Jenkins
-       - Buka tab browser dengan alamat <IP-Publik>:8080
-       - Sign in to Jenkins
+       * Buka tab browser dengan alamat <IP-Publik>:8080
+       * Sign in to Jenkins
          - Username: admin
          - Password: <password>
-       - Install suggested plugins
-       - Skip and continue as Admin
-       - Instance Configuration > default
-       - Save and Finish
-       - Start using Jenkins
+       * Install suggested plugins
+       * Skip and continue as Admin
+       * Instance Configuration > default
+       * Save and Finish
+       * Start using Jenkins
 
 6. Mengonfigurasi Jenkins untuk DevSecOps
 Bagian ini menjelaskan konfigurasi lebih lanjut di Jenkins, termasuk instalasi plugin yang diperlukan dan penambahan alat seperti JDK, NodeJS, dan SonarQube Scanner. Langkah-langkah ini memastikan bahwa Jenkins memiliki semua alat yang diperlukan untuk menjalankan pipeline DevSecOps.
@@ -150,7 +150,7 @@ Bagian ini mencakup pembuatan dan konfigurasi pipeline di Jenkins untuk proyek N
        Dashboard > New Item
          - Enter an item name: Netflix
          - Pipeline
-       *  Klik tombol `OK`
+       * Klik tombol `OK`
 	   
   7.2. Konfigurasi Pipeline
        Dashboard > Netflix > Configuration
