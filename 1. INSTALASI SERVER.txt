@@ -6,11 +6,11 @@ Service EC2 memiliki fitur bawaan yaitu Key Pairs, dengan menggunakan Key Pairs 
 1.1 Key pairs
 - Pada halaman Key pairs, pilih tombol Create key pair.
 - Isikan form "Create key pair" sebagai berikut:
-  - Key pair
+  * Key pair
     - Name: netflix-kp
-	- Key pair type: RSA
-	- Private key file format: .ppk
-- Create key pair
+    - Key pair type: RSA
+    - Private key file format: .ppk
+  * Create key pair
 
 2. Manajemen Firewall
 Service EC2 memiliki fitur bawaan yaitu Security Group, ini dapat mengatur aturan yang menentukan jenis lalu lintas jaringan yang diizinkan masuk (inbound) dan keluar (outbound) dari instance EC2. Lalu lintas jaringan bisa diizinkan atau ditolak berdasarkan protokol, port, dan alamat IP sumber atau tujuan.
